@@ -1,5 +1,5 @@
 # Oracle OPD.NET
-Bem vindo, um pequeno programa em console C# que realiza as funções básicas de um CRUD.
+Um pequeno programa em console C# que realiza as funções básicas de um CRUD.
 
 ## Começando
 Para começar, são necessários alguns passos:
