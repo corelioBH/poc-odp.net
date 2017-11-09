@@ -1,0 +1,14 @@
+﻿<Properties StartupConfiguration="{C4DB2630-A03C-436B-A4B0-F2CD90F4B53B}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="oracle - pdo - poc/Program.cs">
+    <Files>
+      <File FileName="oracle - pdo - poc/Program.cs" Line="16" Column="40" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.oracle_220-_220pdo_220-_220poc PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>
