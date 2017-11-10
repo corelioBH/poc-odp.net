@@ -5,264 +5,146 @@ using System.Text;
 using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
-
+using FluentNHibernate.Mapping;
+using Crud_FluentNHibernate.Models;
+using NHibernate;
+using NHibernate.Linq;
 
 namespace oracle___pdo___poc
 {
+
+
+    public class PEOPLE
+    {
+        public virtual int id { get; set; }
+        public virtual string name { get; set; }
+
+
+    }
     class Program
     {
-        static string user = "system";
-        static string password = "oracle";
-        static string addr = "localhost";
-        static string db_name = "PEOPLE";
+        public static string user = "system";
+        public static string password = "oracle";
+        public static string addr = "192.168.1.171";
+        public static string db_name = "PEOPLE";
 
-        static void create(OracleConnection con)
+
+       
+       static void Main(string[] args)
         {
-            Console.Clear();
-            Console.WriteLine("Digite o nome");
-            string nome = Console.ReadLine();
 
+            //Caso queira utilizar a versão anterior, remova o comentário do código
 
+            /*
+             string constr = string.Concat(string.Concat(string.Concat("user id=", user), string.Concat(";password=", password)), string.Concat(";data source=", addr));
+            OracleConnection con = new OracleConnection(constr);
+            con.Open();
+            Console.WriteLine("Connected to Oracle Database {0}", con.ServerVersion);
 
+            Console.ReadLine();
+            var prior = new Console_Onecs();
+            prior.menu(con);
 
-            OracleCommand cmd = con.CreateCommand();
-            OracleTransaction txn = con.BeginTransaction();
+            */
 
-            try
-            {
-                cmd.CommandText = "INSERT INTO  " + db_name +
-                                  " (name) VALUES (:1)";
-
-
-                OracleParameter name = new OracleParameter();
-                name.OracleDbType = OracleDbType.Char;
-                name.Value = nome;
-
-                cmd.Parameters.Add(name);
-
-                cmd.ExecuteNonQuery();
-
-                txn.Commit();
-                name.Dispose();
-                Console.WriteLine("Comando executado com sucesso!");
-
-            }
-            catch (OracleException ex)
-            {
-                Console.WriteLine(ex.Message);
-                txn.Rollback();
-            }
-
-
-
-            cmd.Dispose();
-
-            Console.WriteLine("Pressione ENTER para continuar...");
+            List_all();
             Console.ReadLine();
 
         }
-        static void retrieve(OracleConnection con)
+        static void List_all()
         {
-
-            Console.Clear();
-
-            OracleCommand cmd = con.CreateCommand();
-
-            cmd.CommandText = "SELECT * FROM "+db_name;
-
-            using (OracleDataReader row = cmd.ExecuteReader())
+            using (ISession session = NHibernateHelper.OpenSession())
             {
-                while (row.Read())
+
+                var pessoas = session.Query<PEOPLE>().ToArray();
+                foreach (var pessoa in pessoas)
                 {
-                    Console.WriteLine(row.GetValue(0) + "\t" + row.GetValue(1));
-                }
-            }
 
-
-
-            cmd.Dispose();
-
-            Console.WriteLine("Pressione ENTER para continuar...");
-            Console.ReadLine();
-
-
-
-        }
-        static void update(OracleConnection con)
-        {
-            Console.Clear();
-            Console.WriteLine("Digite o ID");
-            string id_string = Console.ReadLine();
-
-            Console.Clear();
-            Console.WriteLine("Digite o novo nome");
-            string nome = Console.ReadLine();
-
-
-
-
-            OracleCommand cmd = con.CreateCommand();
-            OracleTransaction txn = con.BeginTransaction();
-
-            try
-            {
-                cmd.CommandText = "UPDATE  " + db_name +
-                                  " SET name = :1 WHERE id = :2";
-
-                OracleParameter name = new OracleParameter();
-                name.OracleDbType = OracleDbType.Char;
-                name.Value = nome;
-                cmd.Parameters.Add(name);
-
-
-                OracleParameter id = new OracleParameter();
-                id.OracleDbType = OracleDbType.Int32;
-                id.Value = Int32.Parse(id_string);
-                cmd.Parameters.Add(id);
-
-
-                Console.WriteLine("Comando executado com sucesso!");
-
-                cmd.ExecuteNonQuery();
-                txn.Commit();
-                name.Dispose();
-                id.Dispose();
-
-            }
-            catch (OracleException ex)
-            {
-                Console.WriteLine(ex.Message);
-                txn.Rollback();
-            }
-
-
-
-            cmd.Dispose();
-
-            Console.WriteLine("Pressione ENTER para continuar...");
-            Console.ReadLine();
-
-
-        }
-        static void delete(OracleConnection con)
-        {
-            Console.Clear();
-            Console.WriteLine("Digite o ID");
-            string id_string = Console.ReadLine();
-
-
-            OracleCommand cmd = con.CreateCommand();
-            OracleTransaction txn = con.BeginTransaction();
-
-            try
-            {
-                cmd.CommandText = "DELETE FROM  " + db_name +
-                                  " WHERE id = :1";
-
-                OracleParameter id = new OracleParameter();
-                id.OracleDbType = OracleDbType.Int32;
-                id.Value = Int32.Parse(id_string);
-                cmd.Parameters.Add(id);
-
-
-
-                cmd.ExecuteNonQuery();
-                txn.Commit();
-                Console.WriteLine("Comando executado com sucesso!"); 
-
-            }
-            catch (OracleException ex)
-            {
-                Console.WriteLine(ex.Message);
-                txn.Rollback();
-            }
-
-
-
-            cmd.Dispose();
-
-            Console.WriteLine("Pressione ENTER para continuar...");
-            Console.ReadLine();
-
-
-
-        }
-        static void menu(OracleConnection con)
-        {
-
-            int escolha;
-
-            do
-            {
-
-                Console.Clear();
-
-                Console.WriteLine("Escolha uma opcao:\n1 - Criar\n2 - Lista todos\n3 - Alterar\n4 - Excluir\n9 - Versao do banco de dados\n0 - Sair");
-                var lido = Console.ReadLine();
-                Int32.TryParse(lido, out escolha);
-
-
-                switch (escolha)
-                {
-                    case 1:
-                        create(con);
-                        break;
-                    case 2:
-                        retrieve(con);
-                        break;
-                    case 3:
-                        update(con);
-                        break;
-                    case 4:
-                        delete(con);
-                        break;
-                    case 9:
-                        Console.WriteLine("Connected to Oracle Database {0}", con.ServerVersion);
-                        Console.WriteLine("Pressione ENTER para continuar...");
-                        Console.ReadLine();
-                        break;
-                    default:
-                        break;
-
+                    Console.WriteLine(pessoa.id+"\t"+pessoa.name);
 
                 }
 
-            } while (escolha != 0);
-
-            Console.Clear();
-            Console.WriteLine("Pressione ENTER para sair...");
-            Console.ReadLine();
+            }
 
 
         }
-        static void Main(string[] args)
-        {
 
+        static void Get_id(int id)
+        {
+            using (ISession session = NHibernateHelper.OpenSession())
+            {
+                var pessoa = session.Get<PEOPLE>(id);
+                Console.WriteLine(pessoa.id + "\t" + pessoa.name);
+
+            }
+        }
+
+
+        static void Update(int id, string name)
+        {
             try
             {
+                using (ISession session = NHibernateHelper.OpenSession())
+                {
+                    var person = session.Get<PEOPLE>(id);
 
-                string constr = string.Concat(string.Concat(string.Concat("user id=", user), string.Concat(";password=", password)), string.Concat(";data source=", addr));
-                OracleConnection con = new OracleConnection(constr);
-                con.Open();
-                // Console.WriteLine("Connected to Oracle Database {0}", con.ServerVersion);
+                    person.name = name;
 
-
-
-                menu(con);
-
-
-
-
-                con.Dispose();
-
+                    using (ITransaction transaction = session.BeginTransaction())
+                    {
+                        session.Save(person);
+                        transaction.Commit();
+                    }
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("Error : {0}", ex);
-                Console.ReadLine();
 
+                Console.WriteLine("Error!");
             }
         }
+
+
+        static void Delete(int id)
+        {
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                {
+
+                    var person = session.Get<PEOPLE>(id);
+
+
+                    using (ITransaction transaction = session.BeginTransaction())
+                    {
+                        session.Delete(person);
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+        
+        static void Create(PEOPLE pessoa)
+        {
+            try
+            {
+                using (ISession session = NHibernateHelper.OpenSession())
+                {
+                    using (ITransaction transaction = session.BeginTransaction())
+                    {
+                        session.Save(pessoa);
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+
     }
 }
 
